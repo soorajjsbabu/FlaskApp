@@ -27,17 +27,32 @@ def display():
     conn.close()
     cur.close()
 
-
     return jsonify(result), 200
 
-@app.route("/insert", methods=['post'])
-def insert():
-    cur.execute('''INSERT INTO employees VALUE (4,'Harry Potter',550000) ''')
+@app.route("/create", methods=['post'])
+def create():
+    cur.execute('''CREATE TABLE employees (employee_id int, name varchar(25), salary double)''')
     conn.commit()
     conn.close()
     cur.close()
 
-    return "Values updated", 200
+    return "Table created", 200
+
+@app.route("/insert/<int:id>/<string:name>/<int:salary>", methods=['POST'])
+def insert(id, name, salary):
+    query = "INSERT INTO employees VALUES ({},'{}',{})".format(id, name, salary)
+
+    print(query)
+    return "Values inserted", 200
+
+# @app.route("/insert", methods=['post'])
+# def insert():
+#     cur.execute('''INSERT INTO employees VALUE (4,'Harry Potter',550000) ''')
+#     conn.commit()
+#     conn.close()
+#     cur.close()
+
+#     return "Values updated", 200
 
 @app.route("/update", methods=['put'])
 def update():
@@ -48,15 +63,6 @@ def update():
 
     return "Values updated", 200
 
-@app.route("/create", methods=['post'])
-def create():
-    cur.execute('''CREATE TABLE employees (employee_id int, name varchar(25), salary double)''')
-    conn.commit()
-    conn.close()
-    cur.close()
-
-    return "Values inserted", 200
-
 @app.route("/delete", methods=['delete'])
 def delete():
     cur.execute('''DELETE FROM employees WHERE employee_id=4''')
@@ -66,6 +72,6 @@ def delete():
 
     return "Values deleted", 200
 
-@app.route("/hello")
-def hello():
-    return "<h1>Hello!</h1>"
+# @app.route("/hello")
+# def hello():
+#     return "<h1>Hello!</h1>"
