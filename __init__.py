@@ -8,18 +8,21 @@ import psycopg2
  
 app = Flask(__name__)
 
-conn = psycopg2.connect(
-        host="localhost",
-        database="flask_db",
-        user='postgres',
-        password='w1llres0lve')
-
-cur = conn.cursor()
+def connection():
+    conn = psycopg2.connect(
+            host="localhost",
+            database="flask_db",
+            user='postgres',
+            password='w1llres0lve')
+    
+    return conn
 
 app = Flask(__name__)
 
 @app.route("/")
 def display():
+    conn = connection()
+    cur = conn.cursor()
     cur.execute('''SELECT * FROM employees''')
 
     result = cur.fetchall()
@@ -27,10 +30,12 @@ def display():
     conn.close()
     cur.close()
 
-    return jsonify(result), 200
+    return json.dumps(result), 200
 
 @app.route("/create", methods=['post'])
 def create():
+    conn = connection()
+    cur = conn.cursor()
     cur.execute('''CREATE TABLE employees (employee_id int, name varchar(25), salary double)''')
     conn.commit()
     conn.close()
@@ -38,11 +43,16 @@ def create():
 
     return "Table created", 200
 
-@app.route("/insert/<int:id>/<string:name>/<int:salary>", methods=['POST'])
+@app.route("/insert/<id>/<name>/<salary>", methods=['POST'])
 def insert(id, name, salary):
+    conn = connection()
+    cur = conn.cursor()
     query = "INSERT INTO employees VALUES ({},'{}',{})".format(id, name, salary)
-
-    print(query)
+    cur.execute(query)
+    conn.commit()
+    conn.close()
+    cur.close()
+    # print(query)
     return "Values inserted", 200
 
 # @app.route("/insert", methods=['post'])
@@ -56,6 +66,8 @@ def insert(id, name, salary):
 
 @app.route("/update", methods=['put'])
 def update():
+    conn = connection()
+    cur = conn.cursor()
     cur.execute('''UPDATE employees SET name='Peter Parker' WHERE employee_id=3 ''')
     conn.commit()
     conn.close()
@@ -63,9 +75,11 @@ def update():
 
     return "Values updated", 200
 
-@app.route("/delete", methods=['delete'])
-def delete():
-    cur.execute('''DELETE FROM employees WHERE employee_id=4''')
+@app.route("/delete/<id>", methods=['delete'])
+def delete(id):
+    conn = connection()
+    cur = conn.cursor()
+    cur.execute('''DELETE FROM employees WHERE employee_id={}'''.format(id))
     conn.commit()
     conn.close()
     cur.close()
