@@ -17,8 +17,6 @@ def connection():
     
     return conn
 
-app = Flask(__name__)
-
 @app.route("/")
 def display():
     conn = connection()
@@ -32,7 +30,7 @@ def display():
 
     return json.dumps(result), 200
 
-@app.route("/create", methods=['post'])
+@app.route("/create", methods=['POST'])
 def create():
     conn = connection()
     cur = conn.cursor()
@@ -43,10 +41,13 @@ def create():
 
     return "Table created", 200
 
-@app.route("/insert/<id>/<name>/<salary>", methods=['POST'])
-def insert(id, name, salary):
+@app.route("/insert", methods=['POST'])
+def insert():
     conn = connection()
     cur = conn.cursor()
+    id = request.form['id']
+    name = request.form['name']
+    salary = request.form['salary']
     query = "INSERT INTO employees VALUES ({},'{}',{})".format(id, name, salary)
     cur.execute(query)
     conn.commit()
@@ -55,16 +56,7 @@ def insert(id, name, salary):
     # print(query)
     return "Values inserted", 200
 
-# @app.route("/insert", methods=['post'])
-# def insert():
-#     cur.execute('''INSERT INTO employees VALUE (4,'Harry Potter',550000) ''')
-#     conn.commit()
-#     conn.close()
-#     cur.close()
-
-#     return "Values updated", 200
-
-@app.route("/update", methods=['put'])
+@app.route("/update", methods=['PUT'])
 def update():
     conn = connection()
     cur = conn.cursor()
@@ -75,7 +67,7 @@ def update():
 
     return "Values updated", 200
 
-@app.route("/delete/<id>", methods=['delete'])
+@app.route("/delete/<id>", methods=['DELETE'])
 def delete(id):
     conn = connection()
     cur = conn.cursor()
