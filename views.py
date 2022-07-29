@@ -1,4 +1,5 @@
 from flask import Blueprint, request
+from . import db
 import json, psycopg2
 
 main = Blueprint('main', __name__)
